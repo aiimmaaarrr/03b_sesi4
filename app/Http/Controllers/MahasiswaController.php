@@ -22,7 +22,7 @@ class MahasiswaController extends Controller
     public function create()
     {
         $data_mk = \App\Models\Matakuliah::all();
-    return view('mahasiswa.create', compact('data_mk'));
+        return view('mahasiswa.create', compact('data_mk'));
     }
 
     /**
@@ -30,7 +30,7 @@ class MahasiswaController extends Controller
      */
     public function store(Request $request)
     {
-        // Bagian ini diubah agar sesuai dengan modul
+        // Validasi input sesuai standar modul
         $request->validate([ 
             'nim' => 'required|unique:mahasiswas,nim', 
             'nama' => 'required', 
@@ -38,11 +38,19 @@ class MahasiswaController extends Controller
             'matakuliah_id' => 'required|exists:matakuliahs,id'
         ]); 
 
-        \App\Models\Mahasiswa::create($request->all());
+        // Menangkap semua data input dari form
+        $data = $request->all();
+
+        // Menyisipkan ID user yang sedang login ke data yang akan disimpan
+        $data['user_id'] = auth()->id();
+
+        // Simpan ke database
+        Mahasiswa::create($data);
 
         return redirect()->route('mahasiswa.index')
                         ->with('success', 'Data mahasiswa berhasil ditambahkan'); 
     }
+
     /**
      * Tampilkan form edit
      */
@@ -58,11 +66,10 @@ class MahasiswaController extends Controller
      */
     public function update(Request $request, $nim)
     {
-        // Validasi input untuk update (NIM tidak perlu divalidasi unik jika readonly)
         $request->validate([
             'nama'       => 'required|string|max:100',
             'kelas'      => 'required|string|max:20',
-            'matakuliah' => 'required|string|max:100',
+            'matakuliah_id' => 'required|exists:matakuliahs,id',
         ]);
 
         $mahasiswa = Mahasiswa::findOrFail($nim);

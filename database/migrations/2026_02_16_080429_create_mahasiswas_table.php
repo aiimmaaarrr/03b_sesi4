@@ -16,10 +16,11 @@ return new class extends Migration
             // Foreign Key merujuk ke tabel matakuliahs
             $table->unsignedBigInteger('matakuliah_id'); 
             $table->foreign('matakuliah_id')
-                  ->references('id')
-                  ->on('matakuliahs')
-                  ->onDelete('cascade');
-                  
+                ->references('id')
+                ->on('matakuliahs')
+                ->onDelete('cascade');
+                $table->foreignId('user_id')->constrained()->onDelete('cascade');
+                
             $table->timestamps();
         });
     }
